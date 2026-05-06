@@ -123,11 +123,11 @@ ${JSON.stringify(assessmentData, null, 2)}
       },
       body: JSON.stringify({
         personalizations: [{
-          to: [{ email: 'shankar.ramamurthy@effilor.com' }],
+          to: [{ email: 'krishnaswamy.subramanian@effilor.com' }],
           subject: `New Strategic Thinking Assessment - ${name} (${company})`
         }],
         from: {
-          email: 'shankar.ramamurthy@effilor.com',
+          email: 'krishnaswamy.subramanian@effilor.com',
           name: 'Effilor Strategic Thinking Assessment'
         },
         content: [{
