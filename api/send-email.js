@@ -1,30 +1,68 @@
 // api/send-email.js
 // Vercel Serverless Function — Sender.net API
-// Field names match exactly what index.html sends
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ message: 'Method not allowed' });
   }
 
-  // index.html sends these fields at the top level (not nested under userData)
   const { name, email, company, role, phone, totalScore, level, pillarScores, answers } = req.body;
 
   if (!email || !name) {
     return res.status(400).json({ message: 'Missing required fields: name and email' });
   }
 
-  // ── Plain text email ───────────────────────────────────────────────────
-  const pillarLines = pillarScores
-    ? Object.entries(pillarScores).map(([pillar, score]) => `  • ${pillar}: ${score} / 30`).join('\n')
-    : '  Not available';
-
-  const answerLines = answers
-    ? answers.map((a, i) => `  Q${i + 1}. ${a.question}\n       → ${a.answer}`).join('\n\n')
-    : '  Not available';
-
   const levelName = level?.name || level || 'Not available';
 
+  // ── Handle pillarScores (object) ───────────────────────────────────────
+  const pillarLines = pillarScores
+    ? Object.entries(pillarScores)
+        .map(([pillar, score]) => `  • ${pillar}: ${score} / 30`)
+        .join('\n')
+    : '  Not available';
+
+  const pillarHtml = pillarScores
+    ? Object.entries(pillarScores)
+        .map(([pillar, score]) =>
+          `<tr>
+            <td style="padding:8px 12px;border-bottom:1px solid #f0f0f0;">${pillar}</td>
+            <td style="padding:8px 12px;border-bottom:1px solid #f0f0f0;font-weight:700;color:#6B3D7A;">${score} / 30</td>
+          </tr>`
+        ).join('')
+    : '<tr><td colspan="2" style="padding:8px 12px;">Not available</td></tr>';
+
+  // ── Handle answers (could be object {0: val, 1: val} or array) ────────
+  let answerLines = '  Not available';
+  let answerHtml  = '<p style="color:#888;">Not available</p>';
+
+  if (answers) {
+    // Convert to array regardless of format
+    const answerArray = Array.isArray(answers)
+      ? answers
+      : Object.values(answers);
+
+    answerLines = answerArray
+      .map((a, i) => {
+        if (typeof a === 'object' && a !== null) {
+          return `  Q${i + 1}. ${a.question || ''}\n       → ${a.answer || a.value || ''}`;
+        }
+        return `  Q${i + 1}. Score: ${a}`;
+      })
+      .join('\n\n');
+
+    answerHtml = answerArray
+      .map((a, i) => {
+        const question = (typeof a === 'object' && a?.question) ? a.question : `Question ${i + 1}`;
+        const answer   = (typeof a === 'object') ? (a?.answer || a?.value || JSON.stringify(a)) : a;
+        return `<div style="margin-bottom:14px;padding:12px 16px;background:#f9f9f9;border-radius:8px;border-left:3px solid #2D2D8F;">
+          <p style="margin:0 0 6px;font-size:13px;color:#555;"><strong>Q${i + 1}.</strong> ${question}</p>
+          <p style="margin:0;font-size:13px;font-weight:600;color:#2D2D8F;">→ ${answer}</p>
+        </div>`;
+      })
+      .join('');
+  }
+
+  // ── Plain text ─────────────────────────────────────────────────────────
   const emailText = `
 Strategic Thinking Quotient Assessment — New Submission
 ========================================================
@@ -51,25 +89,7 @@ ${answerLines}
 Submitted via Effilor Strategic Thinking Quotient Assessment
   `.trim();
 
-  // ── HTML email ─────────────────────────────────────────────────────────
-  const pillarHtml = pillarScores
-    ? Object.entries(pillarScores).map(([pillar, score]) =>
-        `<tr>
-          <td style="padding:8px 12px;border-bottom:1px solid #f0f0f0;">${pillar}</td>
-          <td style="padding:8px 12px;border-bottom:1px solid #f0f0f0;font-weight:700;color:#6B3D7A;">${score} / 30</td>
-        </tr>`
-      ).join('')
-    : '<tr><td colspan="2" style="padding:8px 12px;">Not available</td></tr>';
-
-  const answerHtml = answers
-    ? answers.map((a, i) =>
-        `<div style="margin-bottom:14px;padding:12px 16px;background:#f9f9f9;border-radius:8px;border-left:3px solid #2D2D8F;">
-          <p style="margin:0 0 6px;font-size:13px;color:#555;"><strong>Q${i + 1}.</strong> ${a.question}</p>
-          <p style="margin:0;font-size:13px;font-weight:600;color:#2D2D8F;">→ ${a.answer}</p>
-        </div>`
-      ).join('')
-    : '<p style="color:#888;">Not available</p>';
-
+  // ── HTML ───────────────────────────────────────────────────────────────
   const emailHtml = `
 <!DOCTYPE html>
 <html>
