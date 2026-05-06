@@ -139,7 +139,7 @@ Submitted via Effilor Strategic Thinking Quotient Assessment
       body: JSON.stringify({
         from: {
           name: 'Effilor STQ Assessment',
-          email: 'assessment@effilor.com', // ← must be verified in your Sender account
+          email: 'krishnaswamy.subramanian@effilor.com', // ← must be verified in your Sender account
         },
         to: [
           {
