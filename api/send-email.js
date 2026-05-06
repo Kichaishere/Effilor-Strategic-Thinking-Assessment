@@ -17,7 +17,7 @@ export default async function handler(req, res) {
   // ── Handle pillarScores (object) ───────────────────────────────────────
   const pillarLines = pillarScores
     ? Object.entries(pillarScores)
-        .map(([pillar, score]) => `  • ${pillar}: ${score} / 30`)
+        .map(([pillar, score]) => `  • ${pillar}: ${score} / 30`)  
         .join('\n')
     : '  Not available';
 
