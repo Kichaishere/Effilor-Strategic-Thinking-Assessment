@@ -151,7 +151,7 @@ Submitted via Effilor Strategic Thinking Quotient Assessment
   }
 
   try {
-    const senderRes = await fetch('https://api.sender.net/v2/emails', {
+    const senderRes = await fetch('https://api.sender.net/v2/message/send', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${SENDER_API_KEY}`,
@@ -163,12 +163,12 @@ Submitted via Effilor Strategic Thinking Quotient Assessment
           name: 'Effilor STQ Assessment',
           email: 'krishnaswamy.subramanian@effilor.com',
         },
-        to: [
+        to: {
           {
             name: 'Krishna',
             email: 'krishnaswamy.subramanian@effilor.com',
           },
-        ],
+      },
         reply_to: email,
         subject: `STQ Assessment: ${name} (${company || 'unknown org'}) — ${levelName} · ${totalScore}/90`,
         text: emailText,
