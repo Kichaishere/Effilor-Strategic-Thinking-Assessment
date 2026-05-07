@@ -117,7 +117,7 @@ export default async function handler(req, res) {
       },
       body: JSON.stringify({
         from: {
-          email: 'noreply@sender.net',
+          email: 'skrishna.cts@gmail.com',
           name: 'Effilor STQ Assessment'
         },
         to: {
