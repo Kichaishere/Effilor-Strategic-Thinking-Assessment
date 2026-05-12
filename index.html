@@ -5,436 +5,296 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Strategic Thinking Quotient Assessment - Effilor Consulting Services  </title>
     <meta name="description" content="Measure your organization's ability to think beyond transactions and embrace strategic leadership">
-    <!-- Tailwind CDN: Console warning is safe to ignore. For production optimization, consider installing Tailwind as PostCSS plugin. -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- jsPDF for instant PDF download -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <!-- EmailJS for form submission emails -->
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+    <script>
+        // Initialise EmailJS with your public key
+        (function() {
+            emailjs.init({ publicKey: 'OK4o_i29xl3-iy5Pj' });
+        })();
+    </script>
     <style>
-        /* Custom purple color for Effilor brand */
-        .effilor-purple {
-            background-color: #6B3D7A;
-        }
-        .effilor-purple-text {
-            color: #6B3D7A;
-        }
-        .effilor-purple-border {
-            border-color: #6B3D7A;
-        }
-        
-        /* Smooth transitions */
-        .fade-in {
-            animation: fadeIn 0.5s ease-in;
-        }
-        
+        .effilor-purple { background-color: #6B3D7A; }
+        .effilor-purple-text { color: #6B3D7A; }
+        .effilor-purple-border { border-color: #6B3D7A; }
+        .fade-in { animation: fadeIn 0.5s ease-in; }
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
         }
-        
-        /* Progress bar animation */
-        .progress-bar {
-            transition: width 0.3s ease-in-out;
-        }
-        
-        /* Button hover effects */
-        .btn-primary {
-            background-color: #6B3D7A;
-            transition: opacity 0.2s;
-        }
-        
-        .btn-primary:hover {
-            opacity: 0.9;
-        }
-        
-        /* Custom scrollbar */
-        ::-webkit-scrollbar {
-            width: 10px;
-        }
-        
-        ::-webkit-scrollbar-track {
-            background: #f1f1f1;
-        }
-        
-        ::-webkit-scrollbar-thumb {
-            background: #6B3D7A;
-            border-radius: 5px;
-        }
-        
-        ::-webkit-scrollbar-thumb:hover {
-            background: #4a2752;
-        }
-        
-        /* Simple bar chart styles */
-        .bar-chart {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-            padding: 20px 0;
-        }
-        
-        .bar-item {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-        
-        .bar-label {
-            font-weight: 600;
-            color: #374151;
-            font-size: 14px;
-        }
-        
-        .bar-container {
-            background-color: #e5e7eb;
-            border-radius: 8px;
-            height: 30px;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .bar-fill {
-            background-color: #6B3D7A;
-            height: 100%;
-            border-radius: 8px;
-            transition: width 1s ease-out;
-            display: flex;
-            align-items: center;
-            justify-content: flex-end;
-            padding-right: 10px;
-        }
-        
-        .bar-text {
-            color: white;
-            font-weight: bold;
-            font-size: 13px;
-        }
+        .progress-bar { transition: width 0.3s ease-in-out; }
+        .btn-primary { background-color: #6B3D7A; transition: opacity 0.2s; }
+        .btn-primary:hover { opacity: 0.9; }
+        ::-webkit-scrollbar { width: 10px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #6B3D7A; border-radius: 5px; }
+        ::-webkit-scrollbar-thumb:hover { background: #4a2752; }
+        .bar-chart { display: flex; flex-direction: column; gap: 20px; padding: 20px 0; }
+        .bar-item { display: flex; flex-direction: column; gap: 8px; }
+        .bar-label { font-weight: 600; color: #374151; font-size: 14px; }
+        .bar-container { background-color: #e5e7eb; border-radius: 8px; height: 30px; position: relative; overflow: hidden; }
+        .bar-fill { background-color: #6B3D7A; height: 100%; border-radius: 8px; transition: width 1s ease-out; display: flex; align-items: center; justify-content: flex-end; padding-right: 10px; }
+        .bar-text { color: white; font-weight: bold; font-size: 13px; }
     </style>
 </head>
 <body class="bg-gradient-to-br from-purple-50 via-white to-blue-50 min-h-screen">
     <div id="app"></div>
 
     <script>
-        // Application state
         const state = {
             currentScreen: 'welcome',
             currentQuestion: 0,
             answers: {},
-            userData: {
-                name: '',
-                email: '',
-                company: '',
-                role: '',
-                phone: ''
-            }
+            userData: { name: '', email: '', company: '', role: '', phone: '' }
         };
 
-        // Assessment questions
         const questions = [
-            // PILLAR 1: THINKING FAR (Questions 1-6)
-            {
-                id: 1,
-                pillar: 'Thinking Far',
-                text: 'Does your senior leadership team have a clear and collective point of view about what the future looks like?',
-                options: [
-                    { value: 1, label: 'A. Strongly Disagree' },
-                    { value: 2, label: 'B. Disagree' },
-                    { value: 3, label: 'C. Neutral/Sometimes' },
-                    { value: 4, label: 'D. Agree' },
-                    { value: 5, label: 'E. Strongly Agree' }
-                ]
-            },
-            {
-                id: 2,
-                pillar: 'Thinking Far',
-                text: 'Is there a clear linkage between organizational vision and business-level goals/objectives?',
-                options: [
-                    { value: 1, label: 'A. Strongly Disagree' },
-                    { value: 2, label: 'B. Disagree' },
-                    { value: 3, label: 'C. Neutral/Sometimes' },
-                    { value: 4, label: 'D. Agree' },
-                    { value: 5, label: 'E. Strongly Agree' }
-                ]
-            },
-            {
-                id: 3,
-                pillar: 'Thinking Far',
-                text: 'Is it clear to most people how their individual contribution links to the company\'s overall vision?',
-                options: [
-                    { value: 1, label: 'A. Strongly Disagree' },
-                    { value: 2, label: 'B. Disagree' },
-                    { value: 3, label: 'C. Neutral/Sometimes' },
-                    { value: 4, label: 'D. Agree' },
-                    { value: 5, label: 'E. Strongly Agree' }
-                ]
-            },
-            {
-                id: 4,
-                pillar: 'Thinking Far',
-                text: 'Are most employees genuinely committed to achieving the company\'s vision?',
-                options: [
-                    { value: 1, label: 'A. Strongly Disagree' },
-                    { value: 2, label: 'B. Disagree' },
-                    { value: 3, label: 'C. Neutral/Sometimes' },
-                    { value: 4, label: 'D. Agree' },
-                    { value: 5, label: 'E. Strongly Agree' }
-                ]
-            },
-            {
-                id: 5,
-                pillar: 'Thinking Far',
-                text: 'Does the company\'s opportunity horizon extend well beyond existing products and markets?',
-                options: [
-                    { value: 1, label: 'A. Strongly Disagree' },
-                    { value: 2, label: 'B. Disagree' },
-                    { value: 3, label: 'C. Neutral/Sometimes' },
-                    { value: 4, label: 'D. Agree' },
-                    { value: 5, label: 'E. Strongly Agree' }
-                ]
-            },
-            {
-                id: 6,
-                pillar: 'Thinking Far',
-                text: 'Are senior executives confident they will leave a legacy that exceeds what they inherited?',
-                options: [
-                    { value: 1, label: 'A. Strongly Disagree' },
-                    { value: 2, label: 'B. Disagree' },
-                    { value: 3, label: 'C. Neutral/Sometimes' },
-                    { value: 4, label: 'D. Agree' },
-                    { value: 5, label: 'E. Strongly Agree' }
-                ]
-            },
-            // PILLAR 2: THINKING BIG (Questions 7-12)
-            {
-                id: 7,
-                pillar: 'Thinking Big',
-                text: 'Do your short-term goals stretch the organization significantly beyond current resources?',
-                options: [
-                    { value: 1, label: 'A. Strongly Disagree' },
-                    { value: 2, label: 'B. Disagree' },
-                    { value: 3, label: 'C. Neutral/Sometimes' },
-                    { value: 4, label: 'D. Agree' },
-                    { value: 5, label: 'E. Strongly Agree' }
-                ]
-            },
-            {
-                id: 8,
-                pillar: 'Thinking Big',
-                text: 'Does your company have a clear agenda for developing specific distinctive competencies?',
-                options: [
-                    { value: 1, label: 'A. Strongly Disagree' },
-                    { value: 2, label: 'B. Disagree' },
-                    { value: 3, label: 'C. Neutral/Sometimes' },
-                    { value: 4, label: 'D. Agree' },
-                    { value: 5, label: 'E. Strongly Agree' }
-                ]
-            },
-            {
-                id: 9,
-                pillar: 'Thinking Big',
-                text: 'Does management give explicit attention to developing and allocating core competencies (not just tangible resources)?',
-                options: [
-                    { value: 1, label: 'A. Strongly Disagree' },
-                    { value: 2, label: 'B. Disagree' },
-                    { value: 3, label: 'C. Neutral/Sometimes' },
-                    { value: 4, label: 'D. Agree' },
-                    { value: 5, label: 'E. Strongly Agree' }
-                ]
-            },
-            {
-                id: 10,
-                pillar: 'Thinking Big',
-                text: 'Have all potential opportunities for resource leverage been fully explored?',
-                options: [
-                    { value: 1, label: 'A. Strongly Disagree' },
-                    { value: 2, label: 'B. Disagree' },
-                    { value: 3, label: 'C. Neutral/Sometimes' },
-                    { value: 4, label: 'D. Agree' },
-                    { value: 5, label: 'E. Strongly Agree' }
-                ]
-            },
-            {
-                id: 11,
-                pillar: 'Thinking Big',
-                text: 'Does your company exercise influence over the industry that is disproportionate to its size?',
-                options: [
-                    { value: 1, label: 'A. Strongly Disagree' },
-                    { value: 2, label: 'B. Disagree' },
-                    { value: 3, label: 'C. Neutral/Sometimes' },
-                    { value: 4, label: 'D. Agree' },
-                    { value: 5, label: 'E. Strongly Agree' }
-                ]
-            },
-            {
-                id: 12,
-                pillar: 'Thinking Big',
-                text: 'Does your organization have the capacity to compete globally (on its own or with partners)?',
-                options: [
-                    { value: 1, label: 'A. Strongly Disagree' },
-                    { value: 2, label: 'B. Disagree' },
-                    { value: 3, label: 'C. Neutral/Sometimes' },
-                    { value: 4, label: 'D. Agree' },
-                    { value: 5, label: 'E. Strongly Agree' }
-                ]
-            },
-            // PILLAR 3: THINKING DIFFERENT (Questions 13-18)
-            {
-                id: 13,
-                pillar: 'Thinking Different',
-                text: 'Do leaders regularly identify and challenge current corporate and industry conventions?',
-                options: [
-                    { value: 1, label: 'A. Strongly Disagree' },
-                    { value: 2, label: 'B. Disagree' },
-                    { value: 3, label: 'C. Neutral/Sometimes' },
-                    { value: 4, label: 'D. Agree' },
-                    { value: 5, label: 'E. Strongly Agree' }
-                ]
-            },
-            {
-                id: 14,
-                pillar: 'Thinking Different',
-                text: 'Is there an explicit process for identifying opportunities that transcend individual business units?',
-                options: [
-                    { value: 1, label: 'A. Strongly Disagree' },
-                    { value: 2, label: 'B. Disagree' },
-                    { value: 3, label: 'C. Neutral/Sometimes' },
-                    { value: 4, label: 'D. Agree' },
-                    { value: 5, label: 'E. Strongly Agree' }
-                ]
-            },
-            {
-                id: 15,
-                pillar: 'Thinking Different',
-                text: 'Are there sufficient ongoing marketplace experiments to ensure faster learning than competitors?',
-                options: [
-                    { value: 1, label: 'A. Strongly Disagree' },
-                    { value: 2, label: 'B. Disagree' },
-                    { value: 3, label: 'C. Neutral/Sometimes' },
-                    { value: 4, label: 'D. Agree' },
-                    { value: 5, label: 'E. Strongly Agree' }
-                ]
-            },
-            {
-                id: 16,
-                pillar: 'Thinking Different',
-                text: 'Do employees at all levels possess a deep sense of urgency about sustaining success?',
-                options: [
-                    { value: 1, label: 'A. Strongly Disagree' },
-                    { value: 2, label: 'B. Disagree' },
-                    { value: 3, label: 'C. Neutral/Sometimes' },
-                    { value: 4, label: 'D. Agree' },
-                    { value: 5, label: 'E. Strongly Agree' }
-                ]
-            },
-            {
-                id: 17,
-                pillar: 'Thinking Different',
-                text: 'Does leadership see the company as actively shaping the industry\'s future?',
-                options: [
-                    { value: 1, label: 'A. Strongly Disagree' },
-                    { value: 2, label: 'B. Disagree' },
-                    { value: 3, label: 'C. Neutral/Sometimes' },
-                    { value: 4, label: 'D. Agree' },
-                    { value: 5, label: 'E. Strongly Agree' }
-                ]
-            },
-            {
-                id: 18,
-                pillar: 'Thinking Different',
-                text: 'Is top management well-informed about the competencies, weaknesses, and strategies of all competitors?',
-                options: [
-                    { value: 1, label: 'A. Strongly Disagree' },
-                    { value: 2, label: 'B. Disagree' },
-                    { value: 3, label: 'C. Neutral/Sometimes' },
-                    { value: 4, label: 'D. Agree' },
-                    { value: 5, label: 'E. Strongly Agree' }
-                ]
-            }
+            { id: 1, pillar: 'Thinking Far', text: 'Does your senior leadership team have a clear and collective point of view about what the future looks like?', options: [{ value: 1, label: 'A. Strongly Disagree' }, { value: 2, label: 'B. Disagree' }, { value: 3, label: 'C. Neutral/Sometimes' }, { value: 4, label: 'D. Agree' }, { value: 5, label: 'E. Strongly Agree' }] },
+            { id: 2, pillar: 'Thinking Far', text: 'Is there a clear linkage between organizational vision and business-level goals/objectives?', options: [{ value: 1, label: 'A. Strongly Disagree' }, { value: 2, label: 'B. Disagree' }, { value: 3, label: 'C. Neutral/Sometimes' }, { value: 4, label: 'D. Agree' }, { value: 5, label: 'E. Strongly Agree' }] },
+            { id: 3, pillar: 'Thinking Far', text: "Is it clear to most people how their individual contribution links to the company's overall vision?", options: [{ value: 1, label: 'A. Strongly Disagree' }, { value: 2, label: 'B. Disagree' }, { value: 3, label: 'C. Neutral/Sometimes' }, { value: 4, label: 'D. Agree' }, { value: 5, label: 'E. Strongly Agree' }] },
+            { id: 4, pillar: 'Thinking Far', text: "Are most employees genuinely committed to achieving the company's vision?", options: [{ value: 1, label: 'A. Strongly Disagree' }, { value: 2, label: 'B. Disagree' }, { value: 3, label: 'C. Neutral/Sometimes' }, { value: 4, label: 'D. Agree' }, { value: 5, label: 'E. Strongly Agree' }] },
+            { id: 5, pillar: 'Thinking Far', text: "Does the company's opportunity horizon extend well beyond existing products and markets?", options: [{ value: 1, label: 'A. Strongly Disagree' }, { value: 2, label: 'B. Disagree' }, { value: 3, label: 'C. Neutral/Sometimes' }, { value: 4, label: 'D. Agree' }, { value: 5, label: 'E. Strongly Agree' }] },
+            { id: 6, pillar: 'Thinking Far', text: 'Are senior executives confident they will leave a legacy that exceeds what they inherited?', options: [{ value: 1, label: 'A. Strongly Disagree' }, { value: 2, label: 'B. Disagree' }, { value: 3, label: 'C. Neutral/Sometimes' }, { value: 4, label: 'D. Agree' }, { value: 5, label: 'E. Strongly Agree' }] },
+            { id: 7, pillar: 'Thinking Big', text: 'Do your short-term goals stretch the organization significantly beyond current resources?', options: [{ value: 1, label: 'A. Strongly Disagree' }, { value: 2, label: 'B. Disagree' }, { value: 3, label: 'C. Neutral/Sometimes' }, { value: 4, label: 'D. Agree' }, { value: 5, label: 'E. Strongly Agree' }] },
+            { id: 8, pillar: 'Thinking Big', text: 'Does your company have a clear agenda for developing specific distinctive competencies?', options: [{ value: 1, label: 'A. Strongly Disagree' }, { value: 2, label: 'B. Disagree' }, { value: 3, label: 'C. Neutral/Sometimes' }, { value: 4, label: 'D. Agree' }, { value: 5, label: 'E. Strongly Agree' }] },
+            { id: 9, pillar: 'Thinking Big', text: 'Does management give explicit attention to developing and allocating core competencies (not just tangible resources)?', options: [{ value: 1, label: 'A. Strongly Disagree' }, { value: 2, label: 'B. Disagree' }, { value: 3, label: 'C. Neutral/Sometimes' }, { value: 4, label: 'D. Agree' }, { value: 5, label: 'E. Strongly Agree' }] },
+            { id: 10, pillar: 'Thinking Big', text: 'Have all potential opportunities for resource leverage been fully explored?', options: [{ value: 1, label: 'A. Strongly Disagree' }, { value: 2, label: 'B. Disagree' }, { value: 3, label: 'C. Neutral/Sometimes' }, { value: 4, label: 'D. Agree' }, { value: 5, label: 'E. Strongly Agree' }] },
+            { id: 11, pillar: 'Thinking Big', text: 'Does your company exercise influence over the industry that is disproportionate to its size?', options: [{ value: 1, label: 'A. Strongly Disagree' }, { value: 2, label: 'B. Disagree' }, { value: 3, label: 'C. Neutral/Sometimes' }, { value: 4, label: 'D. Agree' }, { value: 5, label: 'E. Strongly Agree' }] },
+            { id: 12, pillar: 'Thinking Big', text: 'Does your organization have the capacity to compete globally (on its own or with partners)?', options: [{ value: 1, label: 'A. Strongly Disagree' }, { value: 2, label: 'B. Disagree' }, { value: 3, label: 'C. Neutral/Sometimes' }, { value: 4, label: 'D. Agree' }, { value: 5, label: 'E. Strongly Agree' }] },
+            { id: 13, pillar: 'Thinking Different', text: 'Do leaders regularly identify and challenge current corporate and industry conventions?', options: [{ value: 1, label: 'A. Strongly Disagree' }, { value: 2, label: 'B. Disagree' }, { value: 3, label: 'C. Neutral/Sometimes' }, { value: 4, label: 'D. Agree' }, { value: 5, label: 'E. Strongly Agree' }] },
+            { id: 14, pillar: 'Thinking Different', text: 'Is there an explicit process for identifying opportunities that transcend individual business units?', options: [{ value: 1, label: 'A. Strongly Disagree' }, { value: 2, label: 'B. Disagree' }, { value: 3, label: 'C. Neutral/Sometimes' }, { value: 4, label: 'D. Agree' }, { value: 5, label: 'E. Strongly Agree' }] },
+            { id: 15, pillar: 'Thinking Different', text: 'Are there sufficient ongoing marketplace experiments to ensure faster learning than competitors?', options: [{ value: 1, label: 'A. Strongly Disagree' }, { value: 2, label: 'B. Disagree' }, { value: 3, label: 'C. Neutral/Sometimes' }, { value: 4, label: 'D. Agree' }, { value: 5, label: 'E. Strongly Agree' }] },
+            { id: 16, pillar: 'Thinking Different', text: 'Do employees at all levels possess a deep sense of urgency about sustaining success?', options: [{ value: 1, label: 'A. Strongly Disagree' }, { value: 2, label: 'B. Disagree' }, { value: 3, label: 'C. Neutral/Sometimes' }, { value: 4, label: 'D. Agree' }, { value: 5, label: 'E. Strongly Agree' }] },
+            { id: 17, pillar: 'Thinking Different', text: "Does leadership see the company as actively shaping the industry's future?", options: [{ value: 1, label: 'A. Strongly Disagree' }, { value: 2, label: 'B. Disagree' }, { value: 3, label: 'C. Neutral/Sometimes' }, { value: 4, label: 'D. Agree' }, { value: 5, label: 'E. Strongly Agree' }] },
+            { id: 18, pillar: 'Thinking Different', text: 'Is top management well-informed about the competencies, weaknesses, and strategies of all competitors?', options: [{ value: 1, label: 'A. Strongly Disagree' }, { value: 2, label: 'B. Disagree' }, { value: 3, label: 'C. Neutral/Sometimes' }, { value: 4, label: 'D. Agree' }, { value: 5, label: 'E. Strongly Agree' }] }
         ];
 
-        // Logo URL - referencing external file
         const LOGO_URL = "./effilor-logo.jpg";
 
-        // Calculate results
         function calculateResults() {
-            const pillarScores = {
-                'Thinking Far': 0,
-                'Thinking Big': 0,
-                'Thinking Different': 0
-            };
-
+            const pillarScores = { 'Thinking Far': 0, 'Thinking Big': 0, 'Thinking Different': 0 };
             questions.forEach((question, index) => {
                 const answer = state.answers[index] || 1;
                 pillarScores[question.pillar] += answer;
             });
-
             const totalScore = Object.values(pillarScores).reduce((a, b) => a + b, 0);
-            
-            return {
-                pillarScores,
-                totalScore,
-                level: getLevel(totalScore)
-            };
+            return { pillarScores, totalScore, level: getLevel(totalScore) };
         }
 
-        // Get overall level based on score
         function getLevel(score) {
-            if (score >= 67) return { 
-                name: 'Strategic Thinking', 
-                color: 'bg-green-500', 
-                textColor: 'text-green-700',
-                description: 'Your organization demonstrates genuine strategic capability. You\'re not just planning quarters—you\'re shaping futures. Your organization thinks beyond current resources, challenges existing conventions, and maintains a meaningful long-term perspective. But here\'s the uncomfortable truth: strategic thinking isn\'t a destination. In rapidly evolving markets, yesterday\'s strategic advantage becomes tomorrow\'s baseline expectation. The question isn\'t whether you\'re strategic today—it\'s whether you can sustain and accelerate this capability while competitors close the gap. Your immediate focus: Don\'t let operational excellence become an excuse for strategic complacency. The pillars where you scored lower represent your vulnerability. Competitors are studying those gaps.'
+            if (score >= 67) return {
+                name: 'Strategic Thinking', color: 'bg-green-500', textColor: 'text-green-700',
+                description: "Your organization demonstrates genuine strategic capability. You're not just planning quarters—you're shaping futures. Your organization thinks beyond current resources, challenges existing conventions, and maintains a meaningful long-term perspective. But here's the uncomfortable truth: strategic thinking isn't a destination. In rapidly evolving markets, yesterday's strategic advantage becomes tomorrow's baseline expectation. The question isn't whether you're strategic today—it's whether you can sustain and accelerate this capability while competitors close the gap. Your immediate focus: Don't let operational excellence become an excuse for strategic complacency. The pillars where you scored lower represent your vulnerability. Competitors are studying those gaps."
             };
-            if (score >= 43) return { 
-                name: 'Emerging Strategic Thinking', 
-                color: 'bg-yellow-500', 
-                textColor: 'text-yellow-700',
-                description: 'You\'re in the danger zone. Your organization shows flashes of strategic thinking—enough to recognize its importance, but not enough to make it systematic. Some leaders think strategically while others remain operationally focused. This inconsistency is costing you. Here\'s what\'s happening: While parts of your organization debate long-term positioning, competitors with genuine strategic clarity are making decisive moves. Your mixed approach means you\'re neither fully committed to building strategic capability nor fully optimized for tactical execution. The hard reality: This middle ground is unstable. Organizations either build deliberate strategic muscle or drift toward purely transactional thinking. Passive hope won\'t move you forward. Your immediate focus: Stop treating strategic thinking as a luxury for senior leadership. Make it a systematic capability across your organization, or accept that you\'re playing a different game than your strategically-focused competitors.'
+            if (score >= 43) return {
+                name: 'Emerging Strategic Thinking', color: 'bg-yellow-500', textColor: 'text-yellow-700',
+                description: "You're in the danger zone. Your organization shows flashes of strategic thinking—enough to recognize its importance, but not enough to make it systematic. Some leaders think strategically while others remain operationally focused. This inconsistency is costing you. Here's what's happening: While parts of your organization debate long-term positioning, competitors with genuine strategic clarity are making decisive moves. Your mixed approach means you're neither fully committed to building strategic capability nor fully optimized for tactical execution. The hard reality: This middle ground is unstable. Organizations either build deliberate strategic muscle or drift toward purely transactional thinking. Passive hope won't move you forward. Your immediate focus: Stop treating strategic thinking as a luxury for senior leadership. Make it a systematic capability across your organization, or accept that you're playing a different game than your strategically-focused competitors."
             };
-            return { 
-                name: 'Transactional Thinking', 
-                color: 'bg-red-500', 
-                textColor: 'text-red-700',
-                description: 'Your assessment reveals what many organizations won\'t admit: you\'re in execution mode, not strategy mode. Long-term vision exists in boardroom slides, but daily decisions reveal a focus on immediate deliverables, quarterly pressures, and operational firefighting. This isn\'t a moral judgment—it\'s a strategic diagnosis. Transactional thinking works until the market shifts, a competitor innovates, or customer expectations evolve. Then organizations discover that operational excellence without strategic foresight is fragility disguised as competence. The cost you\'re paying: While you\'re optimizing current operations, strategically-oriented competitors are redefining the game you\'re playing. They\'re not better operators—they\'re playing on a different timeline. Your immediate focus: This gap won\'t close with better planning templates or strategy workshops. It requires fundamental shifts in how your leadership team allocates attention, develops talent, and evaluates success. The first step is acknowledging that strategic capability is absent, not just underdeveloped.'
+            return {
+                name: 'Transactional Thinking', color: 'bg-red-500', textColor: 'text-red-700',
+                description: "Your assessment reveals what many organizations won't admit: you're in execution mode, not strategy mode. Long-term vision exists in boardroom slides, but daily decisions reveal a focus on immediate deliverables, quarterly pressures, and operational firefighting. This isn't a moral judgment—it's a strategic diagnosis. Transactional thinking works until the market shifts, a competitor innovates, or customer expectations evolve. Then organizations discover that operational excellence without strategic foresight is fragility disguised as competence. The cost you're paying: While you're optimizing current operations, strategically-oriented competitors are redefining the game you're playing. They're not better operators—they're playing on a different timeline. Your immediate focus: This gap won't close with better planning templates or strategy workshops. It requires fundamental shifts in how your leadership team allocates attention, develops talent, and evaluates success. The first step is acknowledging that strategic capability is absent, not just underdeveloped."
             };
         }
 
-        // Get pillar level
         function getPillarLevel(score) {
-            if (score >= 25) return { name: 'Strong', color: 'bg-green-100 text-green-800', description: '' };
-            if (score >= 19) return { name: 'Developing', color: 'bg-blue-100 text-blue-800', description: '' };
-            if (score >= 13) return { name: 'Emerging', color: 'bg-yellow-100 text-yellow-800', description: '' };
-            return { name: 'Needs Focus', color: 'bg-red-100 text-red-800', description: '' };
+            if (score >= 25) return { name: 'Strong', color: 'bg-green-100 text-green-800' };
+            if (score >= 19) return { name: 'Developing', color: 'bg-blue-100 text-blue-800' };
+            if (score >= 13) return { name: 'Emerging', color: 'bg-yellow-100 text-yellow-800' };
+            return { name: 'Needs Focus', color: 'bg-red-100 text-red-800' };
         }
 
-        // Get pillar-specific feedback
         function getPillarFeedback(pillarName, score) {
             const feedbacks = {
                 'Thinking Far': {
-                    strong: 'Your organization demonstrates clear long-term vision. Leadership shares a coherent view of the future, and this vision cascades meaningfully through business objectives to individual contributions. This alignment is rare and valuable—don\'t underestimate its competitive advantage.',
-                    developing: 'You have vision statements, but they\'re not driving decisions. The gap between stated vision and daily choices suggests that long-term thinking remains aspirational rather than operational. Vision without execution linkage is corporate art, not strategy.',
-                    emerging: 'Long-term perspective is inconsistent across your organization. Some leaders think beyond quarterly horizons while others remain tactically focused. This fragmentation prevents coherent strategic action and creates organizational drift.',
-                    needsFocus: 'Your organization lacks genuine long-term vision. Leadership attention remains captured by immediate demands, and strategic planning focuses on near-term targets. This short-termism limits your ability to build sustainable competitive advantage or shape your industry\'s future.'
+                    strong: "Your organization demonstrates clear long-term vision. Leadership shares a coherent view of the future, and this vision cascades meaningfully through business objectives to individual contributions. This alignment is rare and valuable—don't underestimate its competitive advantage.",
+                    developing: "You have vision statements, but they're not driving decisions. The gap between stated vision and daily choices suggests that long-term thinking remains aspirational rather than operational. Vision without execution linkage is corporate art, not strategy.",
+                    emerging: "Long-term perspective is inconsistent across your organization. Some leaders think beyond quarterly horizons while others remain tactically focused. This fragmentation prevents coherent strategic action and creates organizational drift.",
+                    needsFocus: "Your organization lacks genuine long-term vision. Leadership attention remains captured by immediate demands, and strategic planning focuses on near-term targets. This short-termism limits your ability to build sustainable competitive advantage or shape your industry's future."
                 },
                 'Thinking Big': {
-                    strong: 'Your organization thinks beyond current resource constraints. Leadership sets ambitious goals that require creative resource leverage, competency development, and strategic partnerships. This expansive thinking enables disproportionate market impact relative to your size.',
-                    developing: 'Ambition is present but constrained by resource-based thinking. Goals typically align with available resources rather than stretching the organization to develop new capabilities or leverage partnerships. You\'re leaving strategic opportunities on the table.',
-                    emerging: 'Your organization\'s ambition is limited by what\'s immediately achievable. Resource constraints drive strategy more than strategic vision drives resource creativity. This approach ensures incremental progress but prevents breakthrough performance.',
-                    needsFocus: 'Your goals reflect current resources, not strategic aspiration. Leadership hasn\'t developed the capability to leverage core competencies, build strategic partnerships, or create influence beyond your tangible assets. This resource-constrained thinking limits competitive impact.'
+                    strong: "Your organization thinks beyond current resource constraints. Leadership sets ambitious goals that require creative resource leverage, competency development, and strategic partnerships. This expansive thinking enables disproportionate market impact relative to your size.",
+                    developing: "Ambition is present but constrained by resource-based thinking. Goals typically align with available resources rather than stretching the organization to develop new capabilities or leverage partnerships. You're leaving strategic opportunities on the table.",
+                    emerging: "Your organization's ambition is limited by what's immediately achievable. Resource constraints drive strategy more than strategic vision drives resource creativity. This approach ensures incremental progress but prevents breakthrough performance.",
+                    needsFocus: "Your goals reflect current resources, not strategic aspiration. Leadership hasn't developed the capability to leverage core competencies, build strategic partnerships, or create influence beyond your tangible assets. This resource-constrained thinking limits competitive impact."
                 },
                 'Thinking Different': {
-                    strong: 'Your organization actively challenges industry and corporate conventions. Leadership systematically identifies opportunities that transcend business unit boundaries, runs meaningful experiments, and sees itself as shaping industry evolution. This innovative orientation creates strategic advantage.',
-                    developing: 'Innovation happens, but isn\'t systematic. You experiment when safe rather than as strategic practice. Industry conventions remain largely unquestioned, and cross-boundary opportunities are identified opportunistically rather than deliberately. Innovation is a feature, not a capability.',
-                    emerging: 'Your organization follows industry patterns more than it questions them. Experimentation is limited, often requiring high certainty before commitment. Leadership focuses on competitive awareness but lacks the conviction to shape industry direction.',
-                    needsFocus: 'Your organization operates within established conventions rather than challenging them. Limited experimentation, slow learning cycles, and defensive positioning suggest you\'re reacting to industry changes rather than driving them. This conventional thinking limits breakthrough potential.'
+                    strong: "Your organization actively challenges industry and corporate conventions. Leadership systematically identifies opportunities that transcend business unit boundaries, runs meaningful experiments, and sees itself as shaping industry evolution. This innovative orientation creates strategic advantage.",
+                    developing: "Innovation happens, but isn't systematic. You experiment when safe rather than as strategic practice. Industry conventions remain largely unquestioned, and cross-boundary opportunities are identified opportunistically rather than deliberately. Innovation is a feature, not a capability.",
+                    emerging: "Your organization follows industry patterns more than it questions them. Experimentation is limited, often requiring high certainty before commitment. Leadership focuses on competitive awareness but lacks the conviction to shape industry direction.",
+                    needsFocus: "Your organization operates within established conventions rather than challenging them. Limited experimentation, slow learning cycles, and defensive positioning suggest you're reacting to industry changes rather than driving them. This conventional thinking limits breakthrough potential."
                 }
             };
-
-            const pillarFeedback = feedbacks[pillarName];
-            if (score >= 25) return pillarFeedback.strong;
-            if (score >= 19) return pillarFeedback.developing;
-            if (score >= 13) return pillarFeedback.emerging;
-            return pillarFeedback.needsFocus;
+            const p = feedbacks[pillarName];
+            if (score >= 25) return p.strong;
+            if (score >= 19) return p.developing;
+            if (score >= 13) return p.emerging;
+            return p.needsFocus;
         }
 
-        // Handle answer selection
+        // ── PDF Generation ─────────────────────────────────────────────────────
+        function generatePDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            const results = calculateResults();
+            const NAVY = [45, 45, 143];
+            const PURPLE = [107, 61, 122];
+            const pageW = doc.internal.pageSize.getWidth();
+
+            // Header band
+            doc.setFillColor(...NAVY);
+            doc.rect(0, 0, pageW, 28, 'F');
+            doc.setTextColor(255, 255, 255);
+            doc.setFontSize(16);
+            doc.setFont('helvetica', 'bold');
+            doc.text('Effilor Consulting Services', 14, 12);
+            doc.setFontSize(10);
+            doc.setFont('helvetica', 'normal');
+            doc.text('Strategic Thinking Quotient Assessment', 14, 20);
+            doc.text('effilor.com', pageW - 14, 20, { align: 'right' });
+
+            // Date line
+            doc.setTextColor(120, 120, 120);
+            doc.setFontSize(9);
+            doc.text('Generated: ' + new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }), 14, 35);
+
+            // Overall score box
+            doc.setFillColor(245, 240, 250);
+            doc.roundedRect(14, 40, pageW - 28, 38, 3, 3, 'F');
+            doc.setTextColor(...PURPLE);
+            doc.setFontSize(11);
+            doc.setFont('helvetica', 'bold');
+            doc.text('OVERALL SCORE', 20, 52);
+            doc.setFontSize(32);
+            doc.text(String(results.totalScore), 20, 68);
+            doc.setFontSize(14);
+            doc.setTextColor(100, 100, 100);
+            doc.text('/ 90', 46, 68);
+            doc.setFontSize(13);
+            doc.setTextColor(...PURPLE);
+            doc.setFont('helvetica', 'bold');
+            doc.text(results.level.name, pageW - 20, 62, { align: 'right' });
+            doc.setFontSize(9);
+            doc.setFont('helvetica', 'normal');
+            doc.setTextColor(100, 100, 100);
+            const scoreRange = results.totalScore >= 67 ? '67-90' : results.totalScore >= 43 ? '43-66' : '18-42';
+            doc.text('Score range: ' + scoreRange, pageW - 20, 70, { align: 'right' });
+
+            // Section: Pillar Scores
+            let y = 90;
+            doc.setTextColor(...NAVY);
+            doc.setFontSize(12);
+            doc.setFont('helvetica', 'bold');
+            doc.text('Pillar Scores', 14, y);
+            y += 6;
+            doc.setDrawColor(...NAVY);
+            doc.setLineWidth(0.5);
+            doc.line(14, y, pageW - 14, y);
+            y += 8;
+
+            Object.entries(results.pillarScores).forEach(function(entry) {
+                var pillar = entry[0];
+                var score = entry[1];
+                var pct = Math.round((score / 30) * 100);
+                var level = getPillarLevel(score);
+
+                doc.setFont('helvetica', 'bold');
+                doc.setFontSize(10);
+                doc.setTextColor(40, 40, 40);
+                doc.text(pillar, 14, y);
+
+                doc.setFont('helvetica', 'normal');
+                doc.setFontSize(9);
+                doc.setTextColor(100, 100, 100);
+                doc.text(score + '/30  (' + pct + '%)  —  ' + level.name, 80, y);
+
+                y += 5;
+
+                // Bar background
+                doc.setFillColor(230, 230, 230);
+                doc.roundedRect(14, y, pageW - 28, 7, 2, 2, 'F');
+                // Bar fill
+                var barW = Math.max(2, ((pageW - 28) * pct) / 100);
+                doc.setFillColor(...PURPLE);
+                doc.roundedRect(14, y, barW, 7, 2, 2, 'F');
+                y += 14;
+            });
+
+            // Section: What this means
+            y += 4;
+            doc.setTextColor(...NAVY);
+            doc.setFontSize(12);
+            doc.setFont('helvetica', 'bold');
+            doc.text('What This Means', 14, y);
+            y += 6;
+            doc.setDrawColor(...NAVY);
+            doc.line(14, y, pageW - 14, y);
+            y += 8;
+
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(9);
+            doc.setTextColor(60, 60, 60);
+            var descLines = doc.splitTextToSize(results.level.description, pageW - 28);
+            // Limit to avoid overflow — show first 12 lines
+            var visibleLines = descLines.slice(0, 12);
+            doc.text(visibleLines, 14, y);
+            y += visibleLines.length * 5 + 8;
+
+            // Check if new page needed
+            if (y > 240) {
+                doc.addPage();
+                y = 20;
+            }
+
+            // Section: Detailed Pillar Analysis
+            doc.setTextColor(...NAVY);
+            doc.setFontSize(12);
+            doc.setFont('helvetica', 'bold');
+            doc.text('Detailed Pillar Analysis', 14, y);
+            y += 6;
+            doc.setDrawColor(...NAVY);
+            doc.line(14, y, pageW - 14, y);
+            y += 8;
+
+            Object.entries(results.pillarScores).forEach(function(entry) {
+                var pillar = entry[0];
+                var score = entry[1];
+                var feedback = getPillarFeedback(pillar, score);
+
+                if (y > 250) { doc.addPage(); y = 20; }
+
+                doc.setFont('helvetica', 'bold');
+                doc.setFontSize(10);
+                doc.setTextColor(...PURPLE);
+                doc.text(pillar + ' — ' + score + '/30', 14, y);
+                y += 6;
+
+                doc.setFont('helvetica', 'normal');
+                doc.setFontSize(9);
+                doc.setTextColor(60, 60, 60);
+                var lines = doc.splitTextToSize(feedback, pageW - 28);
+                if (y + lines.length * 4.5 > 270) { doc.addPage(); y = 20; }
+                doc.text(lines, 14, y);
+                y += lines.length * 4.5 + 10;
+            });
+
+            // Footer on last page
+            var totalPages = doc.internal.getNumberOfPages();
+            for (var i = 1; i <= totalPages; i++) {
+                doc.setPage(i);
+                doc.setFillColor(245, 240, 250);
+                doc.rect(0, doc.internal.pageSize.getHeight() - 14, pageW, 14, 'F');
+                doc.setFontSize(8);
+                doc.setTextColor(107, 61, 122);
+                doc.text('Effilor Consulting Services  |  Strategic Thinking Quotient Assessment  |  effilor.com', pageW / 2, doc.internal.pageSize.getHeight() - 5, { align: 'center' });
+            }
+
+            doc.save('Effilor-STQ-Assessment.pdf');
+        }
+
+        // ── Answer & navigation ────────────────────────────────────────────────
         function handleAnswer(value) {
             state.answers[state.currentQuestion] = value;
             if (state.currentQuestion < questions.length - 1) {
@@ -446,55 +306,83 @@
             }
         }
 
-        // Handle previous question
         function handlePrevious() {
-            if (state.currentQuestion > 0) {
-                state.currentQuestion--;
-                render();
-            }
+            if (state.currentQuestion > 0) { state.currentQuestion--; render(); }
         }
 
-        // Handle form submission
         async function handleEmailSubmit(e) {
             e.preventDefault();
-            
-            const assessmentData = {
-                name: state.userData.name,
-                email: state.userData.email,
-                company: state.userData.company,
-                role: state.userData.role,
-                phone: state.userData.phone,
-                answers: state.answers,
-                timestamp: new Date().toISOString()
+
+            const results = calculateResults();
+
+            // ── Build pillar scores string ─────────────────────────────────
+            const pillarScoresText = Object.entries(results.pillarScores)
+                .map(function(entry) {
+                    var pillar = entry[0];
+                    var score = entry[1];
+                    return '  ' + pillar + ': ' + score + '/30 (' + Math.round((score / 30) * 100) + '%)';
+                })
+                .join('\n');
+
+            // ── Build answer breakdown string ──────────────────────────────
+            const pillarMapping = [
+                'Thinking Far','Thinking Far','Thinking Far','Thinking Far','Thinking Far','Thinking Far',
+                'Thinking Big','Thinking Big','Thinking Big','Thinking Big','Thinking Big','Thinking Big',
+                'Thinking Different','Thinking Different','Thinking Different','Thinking Different','Thinking Different','Thinking Different'
+            ];
+            const answerLabels = ['','Strongly Disagree','Disagree','Neutral/Sometimes','Agree','Strongly Agree'];
+            const answerBreakdown = Object.entries(state.answers)
+                .map(function(entry) {
+                    var idx = entry[0];
+                    var val = entry[1];
+                    var qNum = parseInt(idx) + 1;
+                    var pillar = pillarMapping[parseInt(idx)];
+                    var label = answerLabels[val] || val;
+                    return '  Q' + qNum + ' (' + pillar + '): ' + label + ' (' + val + ')';
+                })
+                .join('\n');
+
+            // ── Shared template parameters ─────────────────────────────────
+            const templateParams = {
+                from_name:        state.userData.name,
+                from_email:       state.userData.email,
+                company:          state.userData.company,
+                role:             state.userData.role,
+                phone:            state.userData.phone || 'Not provided',
+                submitted_at:     new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }) + ' IST',
+                total_score:      results.totalScore,
+                level:            results.level.name,
+                pillar_scores:    pillarScoresText,
+                answer_breakdown: answerBreakdown,
             };
 
-            console.log('Submitting assessment data:', assessmentData);
-
             try {
-                const response = await fetch('/api/send-email', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(assessmentData)
-                });
+                // ── Email 1: Notification to Krishna ──────────────────────
+                await emailjs.send(
+                    'service_ljbt169',     // Service ID
+                    'template_2zatemi',    // Template 1: STQ Notification - Krishna
+                    templateParams
+                );
 
-                if (response.ok) {
-                    console.log('Assessment data sent successfully');
-                    state.currentScreen = 'thankyou';
-                    render();
-                } else {
-                    const error = await response.json();
-                    console.error('Failed to send:', error);
-                    alert('There was an issue submitting your assessment. Please try again.');
-                }
+                // ── Email 2: Confirmation to respondent ───────────────────
+                await emailjs.send(
+                    'service_ljbt169',     // Service ID
+                    'template_nbjim2v',    // Template 2: STQ Confirmation - Respondent
+                    templateParams
+                );
+
+                // ── Success ────────────────────────────────────────────────
+                setTimeout(function() { generatePDF(); }, 400);
+                state.currentScreen = 'thankyou';
+                render();
+
             } catch (error) {
-                console.error('Error submitting assessment:', error);
+                console.error('EmailJS error:', error);
                 alert('There was an issue submitting your assessment. Please try again.');
             }
         }
 
-        // Render functions
+        // ── Render functions ───────────────────────────────────────────────────
         function renderWelcome() {
             return `
                 <div class="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50">
@@ -510,92 +398,42 @@
                                 <span class="font-bold">Or</span>ganisations
                             </p>
                         </div>
-
                         <div class="bg-white rounded-2xl shadow-xl p-8 md:p-12 fade-in">
-                            <h2 class="text-4xl font-bold text-gray-900 mb-4">
-                                Strategic Thinking Quotient Assessment
-                            </h2>
-                            <p class="text-xl text-gray-600 mb-8">
-                                Measure your organization's ability to think beyond transactions and embrace strategic leadership
-                            </p>
-
+                            <h2 class="text-4xl font-bold text-gray-900 mb-4">Strategic Thinking Quotient Assessment</h2>
+                            <p class="text-xl text-gray-600 mb-8">Measure your organization's ability to think beyond transactions and embrace strategic leadership</p>
                             <div class="bg-blue-50 border-2 border-blue-200 rounded-xl p-6 mb-6">
-                                <p class="text-blue-900 text-lg leading-relaxed">
-                                    📋 <strong>Answer from your organization's perspective</strong> - not your personal views. Consider how your leadership team and company actually operate, not how you wish they would.
-                                </p>
+                                <p class="text-blue-900 text-lg leading-relaxed">📋 <strong>Answer from your organization's perspective</strong> - not your personal views. Consider how your leadership team and company actually operate, not how you wish they would.</p>
                             </div>
-
                             <div class="bg-purple-50 border-2 border-purple-200 rounded-xl p-6 mb-8">
-                                <p class="text-purple-900 text-lg leading-relaxed">
-                                    ✨ <strong>You'll see your complete results immediately - no email required.</strong> We'll only ask for your contact details if you want us to send you the full report.
-                                </p>
+                                <p class="text-purple-900 text-lg leading-relaxed">✨ <strong>You'll see your complete results immediately - no email required.</strong> We'll only ask for your contact details if you want us to send you the full report.</p>
                             </div>
-
                             <div class="grid md:grid-cols-3 gap-6 mb-8">
-                                <div class="text-center p-4 bg-blue-50 rounded-xl">
-                                    <div class="text-3xl font-bold text-blue-600 mb-2">18</div>
-                                    <div class="text-gray-600">Questions</div>
-                                </div>
-                                <div class="text-center p-4 bg-purple-50 rounded-xl">
-                                    <div class="text-3xl font-bold effilor-purple-text">10-12</div>
-                                    <div class="text-gray-600">Minutes</div>
-                                </div>
-                                <div class="text-center p-4 bg-green-50 rounded-xl">
-                                    <div class="text-3xl font-bold text-green-600 mb-2">3</div>
-                                    <div class="text-gray-600">Strategic Pillars</div>
-                                </div>
+                                <div class="text-center p-4 bg-blue-50 rounded-xl"><div class="text-3xl font-bold text-blue-600 mb-2">18</div><div class="text-gray-600">Questions</div></div>
+                                <div class="text-center p-4 bg-purple-50 rounded-xl"><div class="text-3xl font-bold effilor-purple-text">10-12</div><div class="text-gray-600">Minutes</div></div>
+                                <div class="text-center p-4 bg-green-50 rounded-xl"><div class="text-3xl font-bold text-green-600 mb-2">3</div><div class="text-gray-600">Strategic Pillars</div></div>
                             </div>
-
                             <div class="space-y-4 mb-8">
                                 <h3 class="text-xl font-bold text-gray-900">You'll discover:</h3>
                                 <ul class="space-y-3">
-                                    <li class="flex items-start">
-                                        <svg class="w-6 h-6 text-green-500 mr-3 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                                        </svg>
-                                        <span class="text-gray-700">Whether your organization has genuine long-term vision or just quarterly targets</span>
-                                    </li>
-                                    <li class="flex items-start">
-                                        <svg class="w-6 h-6 text-green-500 mr-3 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                                        </svg>
-                                        <span class="text-gray-700">If your leadership team thinks beyond current resources and constraints</span>
-                                    </li>
-                                    <li class="flex items-start">
-                                        <svg class="w-6 h-6 text-green-500 mr-3 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                                        </svg>
-                                        <span class="text-gray-700">How well your company challenges industry conventions and shapes its future</span>
-                                    </li>
-                                    <li class="flex items-start">
-                                        <svg class="w-6 h-6 text-green-500 mr-3 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                                        </svg>
-                                        <span class="text-gray-700">Your organization's capability to compete at scale and sustain strategic advantage</span>
-                                    </li>
+                                    <li class="flex items-start"><svg class="w-6 h-6 text-green-500 mr-3 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg><span class="text-gray-700">Whether your organization has genuine long-term vision or just quarterly targets</span></li>
+                                    <li class="flex items-start"><svg class="w-6 h-6 text-green-500 mr-3 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg><span class="text-gray-700">If your leadership team thinks beyond current resources and constraints</span></li>
+                                    <li class="flex items-start"><svg class="w-6 h-6 text-green-500 mr-3 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg><span class="text-gray-700">How well your company challenges industry conventions and shapes its future</span></li>
+                                    <li class="flex items-start"><svg class="w-6 h-6 text-green-500 mr-3 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg><span class="text-gray-700">Your organization's capability to compete at scale and sustain strategic advantage</span></li>
                                 </ul>
                             </div>
-
                             <button onclick="startAssessment()" class="btn-primary w-full py-4 px-8 text-xl font-bold text-white rounded-xl transition-opacity flex items-center justify-center">
                                 Begin Assessment
-                                <svg class="ml-2 w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
-                                </svg>
+                                <svg class="ml-2 w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path></svg>
                             </button>
                         </div>
-
-                        <div class="text-center mt-8 text-gray-500 text-sm">
-                            <p>© 2025 Effilor Consulting Services. All rights reserved.</p>
-                        </div>
+                        <div class="text-center mt-8 text-gray-500 text-sm"><p>© 2025 Effilor Consulting Services. All rights reserved.</p></div>
                     </div>
-                </div>
-            `;
+                </div>`;
         }
 
         function renderQuestions() {
             const progress = ((state.currentQuestion + 1) / questions.length) * 100;
             const question = questions[state.currentQuestion];
-
             return `
                 <div class="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50">
                     <div class="w-full flex justify-center py-4">
@@ -604,57 +442,36 @@
                     <div class="max-w-4xl mx-auto px-4 py-12">
                         <div class="mb-8">
                             <div class="flex justify-between items-center mb-2">
-                                <span class="text-sm font-medium text-gray-600">
-                                    Question ${state.currentQuestion + 1} of ${questions.length}
-                                </span>
-                                <span class="text-sm font-medium effilor-purple-text">
-                                    ${question.pillar}
-                                </span>
+                                <span class="text-sm font-medium text-gray-600">Question ${state.currentQuestion + 1} of ${questions.length}</span>
+                                <span class="text-sm font-medium effilor-purple-text">${question.pillar}</span>
                             </div>
                             <div class="w-full bg-gray-200 rounded-full h-2">
                                 <div class="progress-bar effilor-purple h-2 rounded-full" style="width: ${progress}%"></div>
                             </div>
                         </div>
-
                         <div class="bg-white rounded-2xl shadow-xl p-8 md:p-12 fade-in">
-                            <h2 class="text-2xl font-bold text-gray-900 mb-8">
-                                ${question.text}
-                            </h2>
-
+                            <h2 class="text-2xl font-bold text-gray-900 mb-8">${question.text}</h2>
                             <div class="space-y-4 mb-6">
                                 ${question.options.map(option => {
                                     const isSelected = state.answers[state.currentQuestion] === option.value;
-                                    return `
-                                        <button onclick="selectAnswer(${option.value})" class="w-full text-left p-6 rounded-xl border-2 transition-all duration-200 ${isSelected ? 'effilor-purple-border bg-purple-50' : 'border-gray-200 hover:effilor-purple-border hover:bg-purple-50'}">
-                                            <div class="flex items-start">
-                                                <div class="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center mr-4 font-bold ${isSelected ? 'effilor-purple text-white' : 'bg-gray-100 text-gray-600'}">
-                                                    ${option.label.charAt(0)}
-                                                </div>
-                                                <div class="flex-1">
-                                                    <p class="text-gray-800">${option.label.substring(3)}</p>
-                                                </div>
-                                            </div>
-                                        </button>
-                                    `;
+                                    return `<button onclick="selectAnswer(${option.value})" class="w-full text-left p-6 rounded-xl border-2 transition-all duration-200 ${isSelected ? 'effilor-purple-border bg-purple-50' : 'border-gray-200 hover:effilor-purple-border hover:bg-purple-50'}">
+                                        <div class="flex items-start">
+                                            <div class="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center mr-4 font-bold ${isSelected ? 'effilor-purple text-white' : 'bg-gray-100 text-gray-600'}">${option.label.charAt(0)}</div>
+                                            <div class="flex-1"><p class="text-gray-800">${option.label.substring(3)}</p></div>
+                                        </div>
+                                    </button>`;
                                 }).join('')}
                             </div>
-
-                            ${state.currentQuestion > 0 ? `
-                                <button onclick="previousQuestion()" class="w-full py-3 px-6 text-lg font-bold rounded-xl border-2 effilor-purple-border effilor-purple-text transition-all">
-                                    ← Previous Question
-                                </button>
-                            ` : ''}
+                            ${state.currentQuestion > 0 ? `<button onclick="previousQuestion()" class="w-full py-3 px-6 text-lg font-bold rounded-xl border-2 effilor-purple-border effilor-purple-text transition-all">← Previous Question</button>` : ''}
                         </div>
                     </div>
-                </div>
-            `;
+                </div>`;
         }
 
         function renderResults() {
             const results = calculateResults();
             const topStrength = Object.entries(results.pillarScores).reduce((max, curr) => curr[1] > max[1] ? curr : max);
             const priorityArea = Object.entries(results.pillarScores).reduce((min, curr) => curr[1] < min[1] ? curr : min);
-
             return `
                 <div class="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50">
                     <div class="w-full flex justify-center py-4">
@@ -662,43 +479,38 @@
                     </div>
                     <div class="max-w-6xl mx-auto px-4 py-12">
                         <div class="text-center mb-8 fade-in">
-                            <h1 class="text-4xl font-bold mb-2">
-                                <span class="effilor-purple-text">Your Strategic Thinking Results</span>
-                            </h1>
+                            <h1 class="text-4xl font-bold mb-2"><span class="effilor-purple-text">Your Strategic Thinking Results</span></h1>
                             <p class="text-gray-600">Based on your responses across 3 strategic pillars</p>
                         </div>
 
                         <!-- Overall Score -->
                         <div class="bg-white rounded-2xl shadow-xl p-8 mb-8 text-center fade-in">
                             <h2 class="text-2xl font-bold text-gray-900 mb-4">Overall Strategic Thinking Score</h2>
-                            <div class="text-7xl font-bold mb-4 effilor-purple-text">
-                                ${results.totalScore}
-                            </div>
+                            <div class="text-7xl font-bold mb-4 effilor-purple-text">${results.totalScore}</div>
                             <div class="text-lg text-gray-600 mb-2">out of 90 points</div>
-                            <div class="${results.level.color} inline-block px-6 py-3 rounded-full text-xl font-bold text-white mb-4">
-                                ${results.level.name}
+                            <div class="${results.level.color} inline-block px-6 py-3 rounded-full text-xl font-bold text-white mb-4">${results.level.name}</div>
+                            <p class="text-gray-700 max-w-3xl mx-auto leading-relaxed mt-6">${results.level.description}</p>
+
+                            <!-- Instant PDF Download Button -->
+                            <div class="mt-8">
+                                <button onclick="generatePDF()" class="inline-flex items-center gap-3 px-8 py-4 rounded-xl font-bold text-lg text-white transition-all hover:opacity-90 shadow-lg" style="background: linear-gradient(135deg, #2D2D8F, #6B3D7A);">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                                    Download My Results as PDF
+                                </button>
+                                <p class="text-sm text-gray-500 mt-2">Instant download — no sign-up required</p>
                             </div>
-                            <p class="text-gray-700 max-w-3xl mx-auto leading-relaxed mt-6">
-                                ${results.level.description}
-                            </p>
                         </div>
 
-                        <!-- Pillar Breakdown Bar Chart -->
+                        <!-- Pillar Breakdown -->
                         <div class="bg-white rounded-2xl shadow-xl p-8 mb-8 fade-in">
                             <h3 class="text-2xl font-bold text-gray-900 mb-6 text-center">Pillar-by-Pillar Breakdown</h3>
                             <div class="bar-chart">
                                 ${Object.entries(results.pillarScores).map(([pillar, score]) => {
                                     const percentage = (score / 30) * 100;
-                                    return `
-                                        <div class="bar-item">
-                                            <div class="bar-label">${pillar}: ${score}/30 (${Math.round(percentage)}%)</div>
-                                            <div class="bar-container">
-                                                <div class="bar-fill" style="width: ${percentage}%">
-                                                    <span class="bar-text">${score}</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    `;
+                                    return `<div class="bar-item">
+                                        <div class="bar-label">${pillar}: ${score}/30 (${Math.round(percentage)}%)</div>
+                                        <div class="bar-container"><div class="bar-fill" style="width: ${percentage}%"><span class="bar-text">${score}</span></div></div>
+                                    </div>`;
                                 }).join('')}
                             </div>
                         </div>
@@ -708,23 +520,14 @@
                             <div class="bg-green-50 border-2 border-green-200 rounded-2xl p-6">
                                 <h3 class="text-xl font-bold text-green-800 mb-3">🎯 Top Strength</h3>
                                 <p class="text-lg font-semibold text-green-900 mb-2">${topStrength[0]}</p>
-                                <p class="text-green-700">
-                                    Score: ${topStrength[1]}/30 (${Math.round((topStrength[1] / 30) * 100)}%)
-                                </p>
-                                <p class="text-green-800 mt-3">
-                                    This is your strongest dimension. Leverage this strength as a foundation for developing other areas.
-                                </p>
+                                <p class="text-green-700">Score: ${topStrength[1]}/30 (${Math.round((topStrength[1] / 30) * 100)}%)</p>
+                                <p class="text-green-800 mt-3">This is your strongest dimension. Leverage this strength as a foundation for developing other areas.</p>
                             </div>
-
                             <div class="bg-orange-50 border-2 border-orange-200 rounded-2xl p-6">
                                 <h3 class="text-xl font-bold text-orange-800 mb-3">🎯 Priority Area</h3>
                                 <p class="text-lg font-semibold text-orange-900 mb-2">${priorityArea[0]}</p>
-                                <p class="text-orange-700">
-                                    Score: ${priorityArea[1]}/30 (${Math.round((priorityArea[1] / 30) * 100)}%)
-                                </p>
-                                <p class="text-orange-800 mt-3">
-                                    Focus here for maximum impact. Improving this dimension will significantly enhance your organization's strategic thinking capability.
-                                </p>
+                                <p class="text-orange-700">Score: ${priorityArea[1]}/30 (${Math.round((priorityArea[1] / 30) * 100)}%)</p>
+                                <p class="text-orange-800 mt-3">Focus here for maximum impact. Improving this dimension will significantly enhance your organization's strategic thinking capability.</p>
                             </div>
                         </div>
 
@@ -735,62 +538,38 @@
                                 ${Object.entries(results.pillarScores).map(([pillar, score]) => {
                                     const level = getPillarLevel(score);
                                     const feedback = getPillarFeedback(pillar, score);
-                                    return `
-                                        <div class="border-l-4 effilor-purple-border pl-6">
-                                            <div class="flex items-center justify-between mb-2 flex-wrap gap-2">
-                                                <h4 class="text-xl font-bold text-gray-900">${pillar}</h4>
-                                                <span class="px-3 py-1 rounded-full text-sm font-semibold ${level.color}">
-                                                    ${level.name}
-                                                </span>
-                                            </div>
-                                            <div class="flex items-center mb-3">
-                                                <div class="text-2xl font-bold mr-2 effilor-purple-text">${score}</div>
-                                                <div class="text-gray-500">/ 30</div>
-                                                <div class="ml-4 text-lg text-gray-600">(${Math.round((score / 30) * 100)}%)</div>
-                                            </div>
-                                            <p class="text-gray-700 leading-relaxed">
-                                                ${feedback}
-                                            </p>
+                                    return `<div class="border-l-4 effilor-purple-border pl-6">
+                                        <div class="flex items-center justify-between mb-2 flex-wrap gap-2">
+                                            <h4 class="text-xl font-bold text-gray-900">${pillar}</h4>
+                                            <span class="px-3 py-1 rounded-full text-sm font-semibold ${level.color}">${level.name}</span>
                                         </div>
-                                    `;
+                                        <div class="flex items-center mb-3">
+                                            <div class="text-2xl font-bold mr-2 effilor-purple-text">${score}</div>
+                                            <div class="text-gray-500">/ 30</div>
+                                            <div class="ml-4 text-lg text-gray-600">(${Math.round((score / 30) * 100)}%)</div>
+                                        </div>
+                                        <p class="text-gray-700 leading-relaxed">${feedback}</p>
+                                    </div>`;
                                 }).join('')}
                             </div>
                         </div>
 
-                        <!-- CTA to Email -->
+                        <!-- CTA to full report -->
                         <div class="bg-gradient-to-r from-purple-600 to-blue-600 rounded-2xl shadow-xl p-8 text-center text-white mb-8 fade-in">
                             <h3 class="text-3xl font-bold mb-4">Want Your Complete Strategic Analysis?</h3>
-                            <p class="text-xl mb-4">Get this breakdown of your assessment results including:</p>
+                            <p class="text-xl mb-4">Get a personalised written report including:</p>
                             <ul class="text-left max-w-2xl mx-auto mb-6 space-y-2">
-                                <li class="flex items-start">
-                                    <svg class="w-6 h-6 mr-2 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                                    </svg>
-                                    <span>Comprehensive pillar-by-pillar analysis</span>
-                                </li>
-                                <li class="flex items-start">
-                                    <svg class="w-6 h-6 mr-2 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                                    </svg>
-                                    <span>Specific recommendations for each strategic dimension</span>
-                                </li>
-                                <li class="flex items-start">
-                                    <svg class="w-6 h-6 mr-2 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                                    </svg>
-                                    <span>Priority actions based on your organizational profile</span>
-                                </li>
+                                <li class="flex items-start"><svg class="w-6 h-6 mr-2 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg><span>Comprehensive pillar-by-pillar analysis</span></li>
+                                <li class="flex items-start"><svg class="w-6 h-6 mr-2 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg><span>Specific recommendations for each strategic dimension</span></li>
+                                <li class="flex items-start"><svg class="w-6 h-6 mr-2 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg><span>Priority actions based on your organisational profile</span></li>
                             </ul>
                             <button onclick="goToEmail()" class="bg-white effilor-purple-text px-8 py-4 rounded-xl font-bold text-lg hover:bg-gray-100 transition-colors inline-flex items-center">
-                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                                </svg>
+                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                                 Get Your Full Report
                             </button>
                         </div>
                     </div>
-                </div>
-            `;
+                </div>`;
         }
 
         function renderEmail() {
@@ -801,101 +580,23 @@
                     </div>
                     <div class="max-w-2xl mx-auto px-4 py-12">
                         <div class="bg-white rounded-2xl shadow-xl p-8 md:p-12 fade-in">
-                            <h2 class="text-3xl font-bold text-gray-900 mb-4 text-center">
-                                Get Your Strategic Thinking Report
-                            </h2>
-                            <p class="text-gray-600 text-center mb-8">
-                                Enter your details below. We'll compile your comprehensive assessment and send it within 2 business days.
-                            </p>
-
+                            <h2 class="text-3xl font-bold text-gray-900 mb-4 text-center">Get Your Strategic Thinking Report</h2>
+                            <p class="text-gray-600 text-center mb-8">Enter your details below. We'll compile your comprehensive assessment and send it within 2 business days.</p>
                             <form onsubmit="submitEmail(event)" class="space-y-6">
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">
-                                        Full Name *
-                                    </label>
-                                    <input
-                                        type="text"
-                                        required
-                                        value="${state.userData.name}"
-                                        oninput="updateUserData('name', this.value)"
-                                        class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:effilor-purple-border focus:outline-none"
-                                        placeholder="Your full name"
-                                    />
-                                </div>
-
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">
-                                        Email Address *
-                                    </label>
-                                    <input
-                                        type="email"
-                                        required
-                                        value="${state.userData.email}"
-                                        oninput="updateUserData('email', this.value)"
-                                        class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:effilor-purple-border focus:outline-none"
-                                        placeholder="your.email@company.com"
-                                    />
-                                </div>
-
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">
-                                        Organization Name *
-                                    </label>
-                                    <input
-                                        type="text"
-                                        required
-                                        value="${state.userData.company}"
-                                        oninput="updateUserData('company', this.value)"
-                                        class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:effilor-purple-border focus:outline-none"
-                                        placeholder="Your organization name"
-                                    />
-                                </div>
-
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">
-                                        Job Role/Title *
-                                    </label>
-                                    <input
-                                        type="text"
-                                        required
-                                        value="${state.userData.role}"
-                                        oninput="updateUserData('role', this.value)"
-                                        class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:effilor-purple-border focus:outline-none"
-                                        placeholder="Your job title or role"
-                                    />
-                                </div>
-
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">
-                                        Phone Number (optional)
-                                    </label>
-                                    <input
-                                        type="tel"
-                                        value="${state.userData.phone}"
-                                        oninput="updateUserData('phone', this.value)"
-                                        class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:effilor-purple-border focus:outline-none"
-                                        placeholder="+91 98765 43210"
-                                    />
-                                </div>
-
-                                <button
-                                    type="submit"
-                                    class="btn-primary w-full py-4 px-8 text-xl font-bold text-white rounded-xl transition-opacity flex items-center justify-center"
-                                >
-                                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                                    </svg>
+                                <div><label class="block text-sm font-medium text-gray-700 mb-2">Full Name *</label><input type="text" required value="${state.userData.name}" oninput="updateUserData('name', this.value)" class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:outline-none" placeholder="Your full name"/></div>
+                                <div><label class="block text-sm font-medium text-gray-700 mb-2">Email Address *</label><input type="email" required value="${state.userData.email}" oninput="updateUserData('email', this.value)" class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:outline-none" placeholder="your.email@company.com"/></div>
+                                <div><label class="block text-sm font-medium text-gray-700 mb-2">Organization Name *</label><input type="text" required value="${state.userData.company}" oninput="updateUserData('company', this.value)" class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:outline-none" placeholder="Your organization name"/></div>
+                                <div><label class="block text-sm font-medium text-gray-700 mb-2">Job Role/Title *</label><input type="text" required value="${state.userData.role}" oninput="updateUserData('role', this.value)" class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:outline-none" placeholder="Your job title or role"/></div>
+                                <div><label class="block text-sm font-medium text-gray-700 mb-2">Phone Number (optional)</label><input type="tel" value="${state.userData.phone}" oninput="updateUserData('phone', this.value)" class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:outline-none" placeholder="+91 98765 43210"/></div>
+                                <button type="submit" class="btn-primary w-full py-4 px-8 text-xl font-bold text-white rounded-xl transition-opacity flex items-center justify-center">
+                                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                                     Send My Report
                                 </button>
                             </form>
-
-                            <p class="text-sm text-gray-500 text-center mt-6">
-                                Your information will only be used to send you the assessment report and occasional insights from Effilor Consulting Services. We respect your privacy.
-                            </p>
+                            <p class="text-sm text-gray-500 text-center mt-6">Your information will only be used to send you the assessment report and occasional insights from Effilor Consulting Services. We respect your privacy.</p>
                         </div>
                     </div>
-                </div>
-            `;
+                </div>`;
         }
 
         function renderThankYou() {
@@ -907,104 +608,53 @@
                     <div class="max-w-3xl mx-auto px-4 py-12">
                         <div class="bg-white rounded-2xl shadow-xl p-8 md:p-12 text-center fade-in">
                             <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                                <svg class="w-12 h-12 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                                </svg>
+                                <svg class="w-12 h-12 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
                             </div>
-
-                            <h2 class="text-4xl font-bold text-gray-900 mb-4">
-                                Thank You, ${state.userData.name}!
-                            </h2>
-                            
+                            <h2 class="text-4xl font-bold text-gray-900 mb-4">Thank You, ${state.userData.name}!</h2>
                             <div class="bg-purple-50 rounded-xl p-6 mb-8">
-                                <p class="text-lg text-gray-700 mb-4">
-                                    Your Strategic Thinking Quotient Assessment has been submitted successfully.
-                                </p>
-                                <p class="text-xl font-bold mb-2 effilor-purple-text">
-                                    Your detailed assessment report will be sent to:
-                                </p>
-                                <p class="text-xl font-bold text-gray-900 mb-4">
-                                    ${state.userData.email}
-                                </p>
-                                <p class="text-gray-600">
-                                    Please allow up to 24 hours for your personalized report to arrive.
-                                </p>
+                                <p class="text-lg text-gray-700 mb-4">Your Strategic Thinking Quotient Assessment has been submitted successfully.</p>
+                                <p class="text-xl font-bold mb-2 effilor-purple-text">Your detailed assessment report will be sent to:</p>
+                                <p class="text-xl font-bold text-gray-900 mb-4">${state.userData.email}</p>
+                                <p class="text-gray-600">Please allow up to 2 business days for your personalised report to arrive.</p>
                             </div>
-
-                            <div class="text-center mt-8">
+                            <div class="mb-8">
+                                <button onclick="generatePDF()" class="inline-flex items-center gap-3 px-8 py-4 rounded-xl font-bold text-lg text-white transition-all hover:opacity-90 shadow-lg" style="background: linear-gradient(135deg, #2D2D8F, #6B3D7A);">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                                    Download Your PDF Summary
+                                </button>
+                            </div>
+                            <div class="text-center mt-4">
                                 <p class="text-gray-600 mb-2">Questions about your results?</p>
-                                <p class="text-sm text-gray-500">
-                                    Contact us at balesh.raghurajan@effilor.com
-                                </p>
+                                <p class="text-sm text-gray-500">Contact us at krishnaswamy.subramanian@effilor.com</p>
                             </div>
-
                             <div class="text-center mt-8">
-                                <a href="https://www.effilor.com" 
-                                   class="inline-block bg-purple-700 hover:bg-purple-800 text-white font-semibold px-8 py-3 rounded-lg transition-colors duration-200">
-                                    ← Return to Effilor Website
-                                </a>
+                                <a href="https://www.effilor.com" class="inline-block bg-purple-700 hover:bg-purple-800 text-white font-semibold px-8 py-3 rounded-lg transition-colors duration-200">← Return to Effilor Website</a>
                             </div>
                         </div>
                     </div>
-                </div>
-            `;
+                </div>`;
         }
 
-        // Main render function
         function render() {
             const app = document.getElementById('app');
-            let html = '';
-
             switch (state.currentScreen) {
-                case 'welcome':
-                    html = renderWelcome();
-                    break;
-                case 'questions':
-                    html = renderQuestions();
-                    break;
-                case 'results':
-                    html = renderResults();
-                    break;
-                case 'email':
-                    html = renderEmail();
-                    break;
-                case 'thankyou':
-                    html = renderThankYou();
-                    break;
+                case 'welcome':   app.innerHTML = renderWelcome();   break;
+                case 'questions': app.innerHTML = renderQuestions(); break;
+                case 'results':   app.innerHTML = renderResults();   break;
+                case 'email':     app.innerHTML = renderEmail();     break;
+                case 'thankyou':  app.innerHTML = renderThankYou();  break;
             }
-
-            app.innerHTML = html;
             window.scrollTo(0, 0);
         }
 
-        // Global functions for event handlers
-        window.startAssessment = function() {
-            state.currentScreen = 'questions';
-            render();
-        };
+        window.startAssessment = function() { state.currentScreen = 'questions'; render(); };
+        window.selectAnswer    = function(value) { handleAnswer(value); };
+        window.previousQuestion = function() { handlePrevious(); };
+        window.goToEmail       = function() { state.currentScreen = 'email'; render(); };
+        window.updateUserData  = function(field, value) { state.userData[field] = value; };
+        window.submitEmail     = function(e) { handleEmailSubmit(e); };
+        window.generatePDF     = function() { generatePDF(); };
 
-        window.selectAnswer = function(value) {
-            handleAnswer(value);
-        };
-
-        window.previousQuestion = function() {
-            handlePrevious();
-        };
-
-        window.goToEmail = function() {
-            state.currentScreen = 'email';
-            render();
-        };
-
-        window.updateUserData = function(field, value) {
-            state.userData[field] = value;
-        };
-
-        window.submitEmail = function(e) {
-            handleEmailSubmit(e);
-        };
-
-        // Initialize app
         render();
     </script>
 </body>
