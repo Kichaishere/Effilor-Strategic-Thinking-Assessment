@@ -653,7 +653,7 @@
         window.goToEmail       = function() { state.currentScreen = 'email'; render(); };
         window.updateUserData  = function(field, value) { state.userData[field] = value; };
         window.submitEmail     = function(e) { handleEmailSubmit(e); };
-        window.generatePDF     = function() { generatePDF(); };
+        window.generatePDF     =  generatePDF;
 
         render();
     </script>
